@@ -1,0 +1,98 @@
+{% extends "layouts/base.html" %}
+{% load auth_extras %}
+{% block title %} Devices {% endblock %}
+
+
+{% block content %}
+
+    <h1>Devices</h1>
+    <hr><br>
+
+    {% for message in messages %}
+        {% if message.tags == "success" %}
+            <div class="alert alert-success animated fadeInDown">
+        {% elif message.tags == "error" %}
+            <div class="alert alert-error animated fadeInDown">
+        {% elif message.tags == "warning" %}
+            <div class="alert alert-warning animated fadeInDown">
+        {% else %}
+            <div class="alert alert-danger animated fadeInDown">
+        {% endif %}
+        <a class="close" href="#" data-dismiss="alert" style="margin-left: 0.5em; color: #000000; text-decoration: none;">×</a>
+        {{ message }}
+        </div>
+        <br>
+    {% endfor %}
+    {% if request.user|has_group:"admin" %}
+        <div class="button">
+            <a href="{% url 'add_device' %}"><i class="fa fa-plus" style="color: white; padding-right: 1rem"></i>Add a device</a>
+        </div><br>
+    {% endif %}
+
+<div id="tableDevice">
+    <table class="table">
+        <tr class="title">
+            <th>ID</th>
+            <th>Name</th>
+            <th>Type</th>
+            <th>GPIO</th>
+            <th>Status</th>
+            {% if request.user|has_group:"admin" %}
+                <th>Action</th>
+            {% endif %}
+        </tr>
+
+        {% for d in devices %}
+            <tr>
+                <td>{{ d.device_id }}</td>
+                <td>{{ d.device_name }}</td>
+                <td>{{ d.get_device_type_display }}</td>
+                <td>{{ d.gpio }}</td>
+                {% if d.active == True %}
+                    <td>
+                        <button class="toggle-btn" value="{{ d.device_id }}">
+                            <div class="toggle-div toggle-div-on"><i
+                                    class="fa fa-toggle-on nav-icons toggle-icon toggle-icon-on"
+                                    style="color: #67b168;"></i></div>
+                            <div class="toggle-div toggle-div-off" hidden><i
+                                    class="fa fa-toggle-off nav-icons toggle-icon toggle-icon-off"
+                                    style="color: #a94442;" hidden></i></div>
+                        </button>
+                    </td>
+                {% else %}
+                    <td>
+                        <button class="toggle-btn" value="{{ d.device_id }}">
+                            <div class="toggle-div toggle-div-off"><i
+                                    class="fa fa-toggle-off nav-icons toggle-icon toggle-icon-off"
+                                    style="color: #a94442;"></i></div>
+                            <div class="toggle-div toggle-div-on" hidden><i
+                                    class="fa fa-toggle-on nav-icons toggle-icon toggle-icon-on"
+                                    style="color: #67b168;"></i></div>
+                        </button>
+                    </td>
+                {% endif %}
+                {% if request.user|has_group:"admin" %}
+                    <td>
+                        <button class="delete-btn" value="{{ d.device_id }}">
+                            <a href="{% url 'delete_device' id_device=d.device_id %}"
+                               onclick="return confirm('Are you sure you want to delete this?')"
+                               style="text-decoration: none">
+                                {#                        <a href="#" style="text-decoration: none">#}
+                                <i class="fa fa-circle-xmark nav-icons toggle-icon"
+                                   style="color: #a94442; font-size: 1.2em;"></i>
+                            </a>
+                        </button>
+                    </td>
+                {% endif %}
+            </tr>
+        {% endfor %}
+
+    </table>
+    <br><br>
+</div>
+
+<script>
+
+</script>
+
+{% endblock content %}

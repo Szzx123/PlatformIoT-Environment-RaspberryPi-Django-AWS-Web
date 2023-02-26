@@ -1,0 +1,36 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Add a device {% endblock %}
+
+
+{% block content %}
+
+    <h1>Devices</h1>
+    <hr><br>
+
+    <h2>Add a device</h2>
+    <br>
+    <div class='form'>
+        <div class='form_device'>
+            <form action="#" method="POST">
+                {% csrf_token %}
+                <p>Device ID:</p>
+                {{ device_form.device_id }}<br>
+                <p>Device name:</p>
+                {{ device_form.device_name }}<br>
+                <p>Device type:</p>
+                {{ device_form.device_type }}<br>
+                <p>GPIO port:</p>
+                {{ device_form.gpio }}<br>
+                <p>Active device:</p>
+                {{ device_form.active }}<br><br>
+                <button type="submit" name='submit_device' class="button">
+                    Confirm
+                </button>
+                <br><br>
+            </form>
+
+        </div>
+    </div>
+
+{% endblock content %}

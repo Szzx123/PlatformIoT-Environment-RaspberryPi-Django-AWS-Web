@@ -1,0 +1,15 @@
+{% load auth_extras %}
+
+<div id="mySidebar" class="sidebar">
+    {% comment %}<a href="downloads:void(0)" class="closebtn" onclick="closeNav()">&times;</a>{% endcomment %}
+    <p>ENVIRONMENT</p>
+    <ul class="nav-links">
+        <li><a href="{% url 'dashboard' %}"><i class="fa fa-gauge nav-icons"></i>Dashboard</a></li>
+        <li><a href="{% url 'temperature' %}"><i class="fa fa-temperature-0 nav-icons"></i>Temperature</a></li>
+        <li><a href="{% url 'humidity' %}"><i class="fa fa-droplet nav-icons"></i>Humidity</a></li>
+{#        {% if request.user|has_group:"admin" %}#}
+            <li><a href="{% url 'devices' %}"><i class="fa fa-screwdriver-wrench nav-icons"></i>Devices</a></li>
+{#        {% endif %}#}
+        <li style="margin-top: auto"><a href="{% url 'logout' %}"><i class="fa fa-sign-out nav-icons"></i>Logout</a></li>
+    </ul>
+</div>

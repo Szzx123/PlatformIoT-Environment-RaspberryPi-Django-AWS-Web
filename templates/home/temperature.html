@@ -1,0 +1,307 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+{% load tags %}
+{% block title %} Temperature {% endblock %}
+
+
+{% block content %}
+
+    <h1>Temperature</h1>
+    <hr><br>
+
+    {% for d in temperature_data %}
+        {% if d|get_value:'is_active' == True %}
+            {% with id=d|get_value:'device_id' %}
+                <h2><i class="fa fa-toggle-on" style="color: #67b168;"></i> Sensor "{{ d|get_value:'device_name' }}" is
+                    active</h2>
+                <h4 id="last-update-time-{{ id }}">Last update time: {{ d|get_value:'last_update_time' }}</h4>
+
+                <div class="row">
+                    <div class="col" style="padding-right: 1.5em">
+                        <h3>Current temperature</h3>
+                        <div id="chart-current-temperature-{{ id }}" class="chart chart-gauge"></div>
+                    </div>
+
+                    <div class="col">
+                        <h3>Temperature in the past 30 minutes</h3>
+                        <div id="chart-temperature-30min-{{ id }}" class="chart chart-line"></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <h3>Temperature in the past 1 day</h3>
+                    <div id="chart-temperature-1day-{{ id }}" class="chart chart-row chart-line"></div>
+                </div>
+
+                <script>
+                    const baseURL = location.protocol + '//' + location.hostname + (location.port ? ':' + location.port : '');
+                    const token = 'xxxxxxxxxx';
+                    // Current temperature gauge
+                    var chartDom_current_temperature_{{ id }} = document.getElementById('chart-current-temperature-{{ id }}');
+                    var myChart_current_temperature_{{ id }} = echarts.init(chartDom_current_temperature_{{ id }});
+                    var option_current_temperature_{{ id }};
+
+                    option_current_temperature_{{ id }} = {
+
+                        textStyle: {
+                            fontStyle: 'normal',
+                            fontWeight: 'normal',
+                            fontFamily: 'Open Sans',
+                            fontSize: 12,
+                        },
+                        series: [
+                            {
+                                type: 'gauge',
+                                center: ['50%', '60%'],
+                                startAngle: 200,
+                                endAngle: -20,
+                                min: -5,
+                                max: 40,
+                                splitNumber: 9,
+                                itemStyle: {
+                                    color: '#599dc7'
+                                },
+                                progress: {
+                                    show: true,
+                                    width: 30
+                                },
+                                pointer: {
+                                    show: false
+                                },
+                                axisLine: {
+                                    lineStyle: {
+                                        width: 30
+                                    }
+                                },
+                                axisTick: {
+                                    distance: -45,
+                                    splitNumber: 5,
+                                    lineStyle: {
+                                        width: 1,
+                                    }
+                                },
+                                splitLine: {
+                                    distance: -52,
+                                    length: 14,
+                                    lineStyle: {
+                                        width: 3,
+                                    }
+                                },
+                                axisLabel: {
+                                    distance: -20,
+                                    fontSize: 18
+                                },
+                                anchor: {
+                                    show: false
+                                },
+                                title: {
+                                    show: false
+                                },
+                                detail: {
+                                    valueAnimation: true,
+                                    width: '60%',
+                                    lineHeight: 40,
+                                    borderRadius: 8,
+                                    offsetCenter: [0, '-15%'],
+                                    fontSize: 45,
+                                    fontWeight: 'bolder',
+                                    formatter: '{value} °C',
+                                    color: 'auto'
+                                },
+                                data: [
+                                    {
+                                        value: {{ d|get_value:'current_temperature' }}
+                                    }
+                                ]
+                            },
+                        ]
+                    };
+                    myChart_current_temperature_{{ id }}.setOption(option_current_temperature_{{ id }});
+
+                    // 30 min line chart
+                    var data_temperature_30min_{{ id }} = {{ d|get_value:'temperature_objects_30min'|safe }};
+                    var chartDom_temperature_30min_{{ id }} = document.getElementById('chart-temperature-30min-{{ id }}');
+                    var myChart_temperature_30min_{{ id }} = echarts.init(chartDom_temperature_30min_{{ id }});
+                    var option_temperature_30min_{{ id }};
+
+                    option_temperature_30min_{{ id }} = {
+                        textStyle: {
+                            fontStyle: 'normal',
+                            fontWeight: 'normal',
+                            fontFamily: 'Open Sans',
+                            fontSize: 12,
+                        },
+                        xAxis: {
+                            type: 'time',
+                            minInterval: 10 * 60 * 1000,
+                        },
+                        yAxis: {
+                            type: 'value',
+                            min: -5,
+                            max: 40,
+                        },
+                        dataset: {
+                            source: data_temperature_30min_{{ id }},
+                            dimensions: ['timestamp', 'sensor1'],
+                        },
+                        series: [
+                            {
+                                color: 'rgba(22,113,154,0.77)',
+                                areaStyle: {
+                                    color: "rgba(133,206,234,0.62)"
+                                },
+                                name: 'sensor1',
+                                type: 'line',
+                                encode: {
+                                    x: 'timestamp',
+                                    y: 'sensor1' // refer sensor 1 value
+                                },
+                                showSymbol: false,
+                            },
+                        ]
+                    };
+                    myChart_temperature_30min_{{ id }}.setOption(option_temperature_30min_{{ id }});
+
+
+                    // 10 days line chart
+                    var data_temperature_1day_{{ id }} = {{ d|get_value:'temperature_objects_1day'|safe }};
+                    var chartDom_temperature_1day_{{ id }} = document.getElementById('chart-temperature-1day-{{ id }}');
+                    var myChart_temperature_1day_{{ id }} = echarts.init(chartDom_temperature_1day_{{ id }});
+                    var option_temperature_1day_{{ id }};
+
+                    option_temperature_1day_{{ id }} = {
+                        textStyle: {
+                            fontStyle: 'normal',
+                            fontWeight: 'normal',
+                            fontFamily: 'Open Sans',
+                            fontSize: 12,
+                        },
+                        xAxis: {
+                            type: 'time',
+                            minInterval: 5 * 60 * 1000,
+                        },
+                        yAxis: {
+                            type: 'value',
+                            min: -5,
+                            max: 40,
+                        },
+                        dataset: {
+                            source: data_temperature_1day_{{ id }},
+                            dimensions: ['timestamp', 'sensor1'],
+                        },
+                        series: [
+                            {
+                                color: 'rgba(22,88,154,0.77)',
+                                areaStyle: {
+                                    color: "rgba(133,189,234,0.62)"
+                                },
+                                name: 'sensor1',
+                                type: 'line',
+                                encode: {
+                                    x: 'timestamp',
+                                    y: 'sensor1' // refer sensor 1 value
+                                },
+                                showSymbol: false,
+                            },
+                        ]
+                    };
+                    myChart_temperature_1day_{{ id }}.setOption(option_temperature_1day_{{ id }});
+
+                    setInterval(function () {
+                        // get current temperature
+                        $.ajax({
+                            url: baseURL + '/get_current_temperature/?id_device={{ id }}',
+                            headers: {Authorization: 'Token ' + token},
+                            method: 'GET',
+                            contentType: "application/json",
+                            beforeSend: function () {
+                            },
+                            success: function (data) {
+                                myChart_current_temperature_{{ id }}.setOption({
+                                    series: [
+                                        {
+                                            data: [
+                                                {
+                                                    value: data["temperature"]
+                                                }
+                                            ]
+                                        },
+
+                                    ]
+                                });
+
+                                // Parse the timestamp as a Date object
+                                const timestamp = data["sample_time"];
+                                const date = new Date(timestamp);
+
+                                // Use toLocaleDateString and toLocaleTimeString to format the Date object as a string
+                                const formattedDate = date.toLocaleDateString("fr-FR");  // Output: "12/29/2022"
+                                const formattedTime = date.toLocaleTimeString("fr-FR");  // Output: "8:11:38 PM"
+
+                                // Concatenate the formatted date and time to get the final result
+                                const formattedTimestamp = `${formattedDate} ${formattedTime}`;
+
+                                $('#last-update-time-{{ id }}').text('Last update time: ' + formattedTimestamp)
+                            },
+                            error: function (jqXHR, ex) {
+                                alert("Error")
+                            }
+                        })
+
+                        $.ajax({
+                            url: baseURL + '/get_temperature_30min/?id_device={{ id }}',
+                            headers: {Authorization: 'Token ' + token},
+                            method: 'GET',
+                            contentType: "application/json",
+                            beforeSend: function () {
+                            },
+                            success: function (data) {
+                                myChart_temperature_30min_{{ id }}.setOption({
+                                    dataset: {
+                                        source: data,
+                                        dimensions: ['timestamp', 'sensor1'],
+                                    },
+                                });
+                            },
+                            error: function (jqXHR, ex) {
+                                alert("Error")
+                            }
+                        })
+
+                        $.ajax({
+                            url: baseURL + '/get_temperature_1day/?id_device={{ id }}',
+                            headers: {Authorization: 'Token ' + token},
+                            method: 'GET',
+                            contentType: "application/json",
+                            beforeSend: function () {
+                            },
+                            success: function (data) {
+                                myChart_temperature_1day_{{ id }}.setOption({
+                                    dataset: {
+                                        source: data,
+                                        dimensions: ['timestamp', 'sensor1'],
+                                    },
+                                });
+                            },
+                            error: function (jqXHR, ex) {
+                                alert("Error")
+                            }
+                        })
+                    }, 1000);
+
+                </script>
+            {% endwith %}
+
+        {% else %}
+            <h2><i class="fa fa-toggle-off" style="color: #a94442;"></i> Sensor "{{ d|get_value:'device_name' }}" is
+                disabled</h2>
+        {% endif %}
+        <hr><br>
+    {% endfor %}
+
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+
+{% endblock javascripts %}

@@ -1,0 +1,130 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>login page</title>
+    <base href="/">
+
+    <link rel="stylesheet" href="{% static 'downloads/bootstrap.css' %}"> <!-- Bootstrap CSS -->
+    <link href="{% static 'css/font.css' %}" rel="stylesheet"> <!-- Raleway font -->
+    <script src="{% static 'downloads/bootstrap.js' %}"></script> <!-- Bootstrap JS -->
+    <link rel="stylesheet" href="{% static 'downloads/animate.css' %}"/> <!-- Animations-->
+    {#    <link href="https://fonts.googleapis.com/css?family=Roboto|Open+Sans:400,400i,600" rel="stylesheet">#}
+    <link rel="stylesheet" href="{% static 'css/login.css' %}">
+
+    {#    <link href='http://fonts.googleapis.com/css?family=Roboto:400,100,100italic,300,300italic,400italic,500,500italic,700,700italic,900italic,900' rel='stylesheet' type='text/css'>#}
+</head>
+<body>
+
+
+<hr>
+<br>
+
+{% for message in messages %}
+    {% if message.tags == "success" %}
+        <div class="alert alert-success animated fadeInDown">
+    {% elif message.tags == "error" %}
+        <div class="alert alert-error animated fadeInDown">
+    {% elif message.tags == "warning" %}
+        <div class="alert alert-warning animated fadeInDown">
+    {% else %}
+        <div class="alert alert-danger animated fadeInDown">
+    {% endif %}
+    <a class="close" href="#" data-dismiss="alert" style="margin-left: 0.5em; text-decoration: none;">×</a>
+    {{ message }}
+    </div>
+{% endfor %}
+
+
+
+<div class="login animated fadeInUp">
+    <h1>Login</h1><br>
+    {#        <form action="">#}
+    {#            <input type="text" placeholder="Account">#}
+    {#            <input type="password" placeholder="Password">#}
+    {#            <button>Login</button>#}
+    {#        </form>#}
+    <form method="post" novalidate>
+        {% csrf_token %}
+        <div class="form-group">
+            <label>Username</label><br>
+            {{ form.username }}
+            <span style="color: red;">{{ form.username.errors.0 }}</span>
+        </div>
+        <div class="form-group">
+            <label>Password</label><br>
+            {{ form.password }}
+            <span style="color: red;">{{ form.password.errors.0 }}</span>
+        </div>
+        <input type="submit" value="Continue" class="button">
+    </form>
+</div>
+
+<script>
+    //获取 login
+    let login = document.querySelector('.login')
+
+    let span
+    let inTime, outTime
+    let isIn = true //默认开关 打开
+    let isOut
+
+    //鼠标进入事件
+    login.addEventListener('mouseenter', function (e) {
+        isOut = false //预先关闭，若不进入if语句，则不能进入鼠标离开事件里的 if
+        if (isIn) {
+            inTime = new Date().getTime()
+
+            //生成 span 元素并添加进 login 的末尾
+            span = document.createElement('span')
+            login.appendChild(span)
+
+            //span 去使用 in动画
+            span.style.animation = 'in .5s ease-out forwards'
+
+            //计算 top 和 left 值，跟踪鼠标位置
+            let top = e.clientY - e.target.offsetTop
+            let left = e.clientX - e.target.offsetLeft
+
+            span.style.top = top + 'px'
+            span.style.left = left + 'px'
+
+            isIn = false //当我们执行完程序后，关闭
+            isOut = true //当我们执行完里面的程序，再打开
+        }
+
+    })
+    //鼠标离开事件
+    login.addEventListener('mouseleave', function (e) {
+        if (isOut) {
+            outTime = new Date().getTime()
+            let passTime = outTime - inTime
+
+            if (passTime < 500) {
+                setTimeout(mouseleave, 500 - passTime) //已经经过的时间就不要了
+            } else {
+                mouseleave()
+            }
+        }
+
+        function mouseleave() {
+            span.style.animation = 'out .5s ease-out forwards'
+
+            //计算 top 和 left 值，跟踪鼠标位置
+            let top = e.clientY - e.target.offsetTop
+            let left = e.clientX - e.target.offsetLeft
+
+            span.style.top = top + 'px'
+            span.style.left = left + 'px'
+
+            //注意：因为要等到动画结束，所以要给个定时器
+            setTimeout(function () {
+                login.removeChild(span)
+                isIn = true //当我们执行完鼠标离开事件里的程序，才再次打开
+            }, 500)
+        }
+    })
+</script>
+</body>
+</html>
