@@ -257,3 +257,11 @@ systemctl restart nginx
 ```
 
 At this point, the entire project has been deployed.
+
+Finally, in order to implement the functions associated with controlling the sensors, we need to use the API to interact with the Raspberry Pi. In the program file on the Raspberry Pi side that we just cloned down, sc.py is the script we created to listen to the platform operations.
+
+```shell
+cd PlatformIoT-Environment-RaspberryPi
+python3 sc.py
+```
+
