@@ -60,3 +60,30 @@ We then created a rule in the AWS IOT so that whenever it receives data, it trig
 In order to provide an interactive interface for sensor management and visualization, we developed a web application using Django and Python, which was deployed on an AWS EC2 instance by nginx + uwsgi and read the data stored in the RDS.
 
 With the NAT configured by the VPC, we can access this web application from the public network. Finally, to implement functions related to control, adding sensors, etc., we created RESTful APIs in Django for the Raspberry Pi to access and execute commands.
+
+## Getting started
+
+### Setting up Raspberry Pi and AWS IoT
+
+You can refer to the following tutorial for configuration: https://docs.aws.amazon.com/iot/latest/developerguide/connecting-to-existing-device.html
+
+After you have configured the environment on the Raspberry Pi side, you can use our code to send data to the IoT Core.
+
+In your Raspberry Pi terminal:
+
+```bash
+git pull https://github.com/Szzx123/PlatformIoT-Environment-RaspberryPi.git
+cd PlatformIoT-Environment-RaspberryPi
+python3 AWS_DHT_RPI.py
+--topic device/3/data --ca_file ~/Desktop/mqtt/AmazonRootCA1.pem
+--cert ~/Desktop/mqtt/certificate.pem.crt
+--key ~/Desktop/mqtt/private.pem.key
+--endpoint a3vf4f15xaiiy7-ats.iot.eu-west-3.amazonaws.com
+--device_id 3 --gpio 4 --count 10000
+```
+
+`--topic` is an event that we and AWS IOT need to subscribe to together and AWS IOT rules can receive data under the same event and operate it.
+
+The `--ca_file`, `--cert`, `--key` parameters are the provided certificates and keys we need to use our own AWS cloud service, which ensures security. And --count represents the number of times we want to read the data.
+
+`--device_id` is the number you want to set for the DHT11, it can be any number. `--gpio` is the gpio number of your DHT11 connected to the Raspberry Pi. `--count` is the number of times to send data to IoT Core.
